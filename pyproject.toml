@@ -10,6 +10,7 @@ requires-python = ">=3.14"
 dependencies = [
     "daphne>=4.2.1",
     "litestar>=2.21.1",
+    "pyarrow>=23.0.1",
 ]
 
 [project.scripts]

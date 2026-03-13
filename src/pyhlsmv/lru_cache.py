@@ -4,10 +4,10 @@ from typing import Any, Optional, Dict
 
 class LRUCache:
     def __init__(self, capacity:int = 10000):
-        self.capacity = capacity
-        self.cache:Dict[Any, Any] = {}
         self.access_order = OrderedDict()
         self.lock = threading.RLock()
+        self.cache:Dict[Any, Any] = {}
+        self.capacity = capacity
 
     def get(self, key:Any) -> Optional[Any]:
         with self.lock:
