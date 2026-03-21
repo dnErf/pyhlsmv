@@ -1,0 +1,11 @@
+---
+import Main from "../layout/main.astro"
+import { actions } from "astro:actions"
+
+const { data } = await Astro.callAction(actions.sayHello, {})
+
+---
+
+<Main>
+	{data}
+</Main>

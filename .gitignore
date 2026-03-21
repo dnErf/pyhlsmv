@@ -1,3 +1,12 @@
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# dependencies
+node_modules/
+
 # Python-generated files
 __pycache__/
 *.py[oc]
@@ -8,3 +17,20 @@ wheels/
 
 # Virtual environments
 .venv
+
+# environment variables
+.env
+.env.production
+
+# ide
+.vscode/
+.idea/
+
+# build output
+dist/
+
+# generated types
+.astro/
+
+# macOS-specific files
+.DS_Store

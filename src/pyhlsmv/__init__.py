@@ -1,5 +1,6 @@
-from .api import app
+# from .api import app
 from daphne.server import Server
+from .endpoints import app
 
 def main() -> None:
     print("Hello from pyhlsmv!")
