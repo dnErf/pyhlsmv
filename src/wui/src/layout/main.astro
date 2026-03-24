@@ -1,5 +1,6 @@
 ---
-
+import "../styles/global.css"
+import Sidebar from "../components/sidebar.vue"
 ---
 
 <html lang="en">
@@ -11,7 +12,25 @@
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro</title>
 	</head>
-	<body>
-		<slot />
+	<body id="app" class="min-h-screen p-2">
+		<main class="app-container flex">
+			<div class="sidebar p-2 w-2xs dark:bg-mist-900 overflow-y-auto">
+				<Sidebar client:only="vue" />
+			</div>
+			<div class="content p-2 flex-1 overflow-y-auto">
+				<slot />
+			</div>
+		</main>
 	</body>
 </html>
+
+<style scoped>
+	.app-container {
+		height: calc(100vh - 16px);
+		margin: 0 auto;
+	}
+
+	.sidebar {
+		box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+	}
+</style>
