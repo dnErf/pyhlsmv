@@ -1,0 +1,30 @@
+---
+import Main from "../layout/main.astro"
+
+---
+
+<Main>
+	<div class="sub-side-menu-container sidebar p-2 px-4 w-1/4 text-base dark:bg-mist-900 overflow-y-auto">
+		<header class="px-2 py-4 font-semibold">
+			<span>
+				Catalog
+			</span>
+		</header>
+		<div class="py-2">
+			Schema
+		</div>
+		<select class="select">
+			<option disabled selected>Default</option>
+			<option>...</option>
+			<option>...</option>
+			<option>...</option>
+		</select>
+		<div class="divider"></div>
+	</div>
+</Main>
+
+<style>
+.sub-side-menu-container {
+	min-height: calc(95vh - 1vh);
+}
+</style>

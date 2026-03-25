@@ -15,11 +15,19 @@
   "dependencies": {
     "@astrojs/cloudflare": "^13.1.2",
     "@astrojs/vue": "^6.0.1",
+    "@iconify-json/bx": "^1.2.3",
+    "@iconify-json/bxl": "^1.2.4",
+    "@iconify-json/bxs": "^1.2.3",
+    "@iconify/tailwind": "^1.2.0",
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.0.6",
     "daisyui": "^5.5.19",
     "tailwindcss": "^4.2.2",
     "vue": "^3.5.30",
     "wrangler": "^4.75.0"
+  },
+  "devDependencies": {
+    "@iconify/json": "^2.2.454",
+    "@iconify/tailwind4": "^1.2.3"
   }
 }
