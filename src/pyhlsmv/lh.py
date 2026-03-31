@@ -13,7 +13,8 @@ class WriteResult:
     timestamp: Optional[Tuple[int, int]] = None
     version: Optional[int] = None
     message: str = ""
-
+    
+class LH:
     def __init__(self, base_path:str = "./lhs", memtable_size:int = 64 * 1024 * 1024, compaction_interal:float = 5.0):
         self.base_path = base_path
         self.memtable_size = memtable_size
@@ -28,6 +29,12 @@ class WriteResult:
         self.compaction_thread:Optional[threading.Thread] = None
         self.running = False
         self.start_compaction_worker()
+
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop()
 
     def _compaction_loop(self) -> None:
         while self.running:
@@ -52,22 +59,61 @@ class WriteResult:
         if self.compaction_thread:
             self.compaction_thread.join(timeout = 5)
 
-    def get_stats(self, schema_name:str, table_name:str) -> Dict[str, Any]:
+    def create_schema(self, schema_name:str) -> None:
+        self.storage.create_schema(schema_name)
+
+    def create_table(self, schema_name:str, table_name:str, columns:List[TableSchema]) -> None:
+        table_key = f"{schema_name}.{table_name}"
+        self.storage.create_table(schema_name, table_name, columns)
+        self.tables[table_key] = LSMTree(memtable_size = self.memtable_size)
+        self.table_schemas[table_key] = columns
+        self.table_versions[table_key] = 0
+
+    def write(self, schema_name:str, table_name:str, key, value) -> WriteResult:
+        table_key = f"{schema_name}.{table_name}"
+        if table_key not in self.tables:
+            return WriteResult(False, message = "table not found")
+        
+        try:
+            with self.write_lock:
+                earliest, latest = self.truetime.now()
+                version = self.concurrency.write(key, value)
+
+                self.tables[table_key].put(key, value)
+                self.table_versions[table_key] = version
+
+                return WriteResult(
+                    success = True,
+                    timestamp = (earliest, latest),
+                    version = version,
+                    message = "write committed"
+                )
+        except Exception as exc:
+            return WriteResult(False, message = "write failed")
+        
+    def read(self, schema_name:str, table_name:str, key) -> Optional[Any]:
         table_key = f"{schema_name}.{table_name}"
 
         if table_key not in self.tables:
-            return {}
+            return None
         
-        lsm = self.tables[table_key]
-        return {
-            "table_name": table_name,
-            "schema_name": schema_name,
-            "total_records": len(lsm),
-            "memtable_size": lsm.current_size,
-            "immutable_memtables": len(lsm.immutable_memtables),
-            "lsm_levels": { level: len(tables) for level, tables in lsm.levels.items() },
-            "version": self.table_versions.get(table_key, 0),
-        }
+        return self.tables[table_key].get(key)
+    
+    def scan(self, schema_name:str, table_name:str, min_key = None, max_key = None) -> Iterator[Tuple[Any, Any]]:
+        table_key = f"{schema_name}.{table_name}"
+
+        if table_key not in self.tables:
+            return
+        
+        return self.tables[table_key].scan(min_key, max_key)
+    
+    def create_snapshot(self, schema_name:str, table_name:str) -> LSMSnapshot:
+        table_key = f"{schema_name}.{table_name}"
+
+        if table_key not in self.tables:
+            raise ValueError("table not found")
+        
+        return self.tables[table_key].create_snapshot()
     
     def persist_table(self, schema_name:str, table_name:str, commit_message:str = "") -> bool:
         table_key = f"{schema_name}.{table_name}"
@@ -98,64 +144,19 @@ class WriteResult:
             print("persistence failed")
             return False
         
-    def create_snapshot(self, schema_name:str, table_name:str) -> LSMSnapshot:
+    def get_stats(self, schema_name:str, table_name:str) -> Dict[str, Any]:
         table_key = f"{schema_name}.{table_name}"
 
         if table_key not in self.tables:
-            raise ValueError("table not found")
+            return {}
         
-        return self.tables[table_key].create_snapshot()
-    
-    def scan(self, schema_name:str, table_name:str, min_key = None, max_key = None) -> Iterator[Tuple[Any, Any]]:
-        table_key = f"{schema_name}.{table_name}"
-
-        if table_key not in self.tables:
-            return
-        
-        return self.tables[table_key].scan(min_key, max_key)
-    
-    def read(self, schema_name:str, table_name:str, key) -> Optional[Any]:
-        table_key = f"{schema_name}.{table_name}"
-
-        if table_key not in self.tables:
-            return None
-        
-        return self.tables[table_key].get(key)
-    
-    def write(self, schema_name:str, table_name:str, key, value) -> WriteResult:
-        table_key = f"{schema_name}.{table_name}"
-        if table_key not in self.tables:
-            return WriteResult(False, message = "table not found")
-        
-        try:
-            with self.write_lock:
-                earliest, latest = self.truetime.now()
-                version = self.concurrency.write(key, value)
-
-                self.tables[table_key].put(key, value)
-                self.table_versions[table_key] = version
-
-                return WriteResult(
-                    success = True,
-                    timestamp = (earliest, latest),
-                    version = version,
-                    message = "write committed"
-                )
-        except Exception as exc:
-            return WriteResult(False, message = "write failed")
-        
-    def create_table(self, schema_name:str, table_name:str, columns:List[TableSchema]) -> None:
-        table_key = f"{schema_name}.{table_name}"
-        self.storage.create_table(schema_name, table_name, columns)
-        self.tables[table_key] = LSMTree(memtable_size = self.memtable_size)
-        self.table_schemas[table_key] = columns
-        self.table_versions[table_key] = 0
-
-    def create_schema(self, schema_name:str) -> None:
-        self.storage.create_schema(schema_name)
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.stop()
-
-    def __enter__(self):
-        return self
+        lsm = self.tables[table_key]
+        return {
+            "table_name": table_name,
+            "schema_name": schema_name,
+            "total_records": len(lsm),
+            "memtable_size": lsm.current_size,
+            "immutable_memtables": len(lsm.immutable_memtables),
+            "lsm_levels": { level: len(tables) for level, tables in lsm.levels.items() },
+            "version": self.table_versions.get(table_key, 0),
+        }
