@@ -89,7 +89,7 @@ class HStorage:
 
     def create_schema(self, schema_name: str) -> None:
         schema_path = self.base_path / schema_name
-        schema_path.mkdir(parents = True, exists_ok = True)
+        schema_path.mkdir(parents = True, exist_ok = True)
 
         metadata = SchemaMetadata(
             name = schema_name,

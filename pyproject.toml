@@ -11,6 +11,7 @@ dependencies = [
     "daphne>=4.2.1",
     "litestar>=2.21.1",
     "pyarrow>=23.0.1",
+    "pytest>=9.0.2",
 ]
 
 [project.scripts]

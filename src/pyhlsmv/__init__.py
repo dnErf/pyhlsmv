@@ -3,7 +3,6 @@ from daphne.server import Server
 from .endpoints import app
 
 def main() -> None:
-    print("Hello from pyhlsmv!")
     server = Server(app, endpoints=["tcp:8000:interface=0.0.0.0"])
     server.run()
 

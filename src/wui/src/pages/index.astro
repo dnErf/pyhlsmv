@@ -1,13 +1,30 @@
 ---
 import Main from "../layout/main.astro"
-import { actions } from "astro:actions"
 
-const { data } = await Astro.callAction(actions.sayHello, {})
+// import { actions } from "astro:actions"
+// const sayHello = await Astro.callAction(actions.sayHello, {})
+// const createSchema = await Astro.callAction(actions.createSchema, { schemaName: "hello "})
 
 ---
+<script>
+import { actions } from "astro:actions"
+
+const btn_createSchema = document.querySelector("#btn_createSchema")
+
+let count = 0
+btn_createSchema.addEventListener("click", async () => {
+	console.log("create schema click")
+	let createSchemaResult = await actions.createSchema({ schemaName: "test" })
+	console.log(createSchemaResult)
+	count += 1
+})
+</script>
 
 <Main>
 	<div>
-		{data}
+		hello
+		<button id="btn_createSchema">
+			create schema
+		</button>
 	</div>
 </Main>
