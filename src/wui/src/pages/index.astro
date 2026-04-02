@@ -9,22 +9,59 @@ import Main from "../layout/main.astro"
 <script>
 import { actions } from "astro:actions"
 
-const btn_createSchema = document.querySelector("#btn_createSchema")
-
 let count = 0
-btn_createSchema.addEventListener("click", async () => {
+count += 1
+
+const btn_createSchema = document.querySelector("#btn_createSchema")
+btn_createSchema?.addEventListener("click", async () => {
 	console.log("create schema click")
 	let createSchemaResult = await actions.createSchema({ schemaName: "test" })
-	console.log(createSchemaResult)
-	count += 1
+	console.log(createSchemaResult)	
+})
+
+const btn_getSchemaInfo = document.querySelector("#btn_getSchemaInfo")
+btn_getSchemaInfo?.addEventListener("click", async () => {
+	console.log("get schema info click")
+	let getSchemaInfoResult = await actions.getSchemaInfo({ schemaName: "test" })
+	console.log(getSchemaInfoResult)
+})
+
+const btn_getTables = document.querySelector("#btn_getTables")
+btn_getTables?.addEventListener("click", async () => {
+	console.log("get tables click")
+	let getTablesResult = await actions.getTables({ schemaName: "test" })
+	console.log(getTablesResult)
+})
+
+const btn_createTable = document.querySelector("#btn_createTable")
+btn_createTable?.addEventListener("click", async () => {
+	console.log("create tables click")
+	let getTablesResult = await actions.createTable({ schemaName: "test", tableName: "ztbl" })
+	console.log(getTablesResult)
 })
 </script>
 
 <Main>
 	<div>
-		hello
-		<button id="btn_createSchema">
-			create schema
-		</button>
+		<div>
+			<button id="btn_createSchema" class="">
+				create schema
+			</button>
+		</div>
+		<div>
+			<button id="btn_getSchemaInfo" class="">
+				get schema info
+			</button>
+		</div>
+		<div>
+			<button id="btn_getTables" class="">
+				get tables
+			</button>
+		</div>
+		<div>
+			<button id="btn_createTable" class="">
+				create table
+			</button>
+		</div>
 	</div>
 </Main>

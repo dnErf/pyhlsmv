@@ -2,6 +2,7 @@ from typing import Any, Dict, Optional
 from litestar import Litestar, get, post
 from litestar.config.cors import CORSConfig
 from ..lh import LH
+from pyhlsmv.storage import TableSchema
 
 _lh:Optional[LH] = None
 
@@ -34,6 +35,36 @@ async def create_schema(schema_name:str) -> Dict[str, str]:
         }
     except Exception as exc:
         return { "error": str(exc) }
+    
+
+@get("/{schema_name:str}/tables")
+async def list_tables(schema_name:str) -> Dict[str, Any]:
+    lh = get_lh()
+    tables = lh.storage.list_tables(schema_name)
+    return {
+        "schema_name": schema_name,
+        "tables": tables,
+        "count": len(tables)
+    }
+
+
+@post("/{schema_name:str}/tables/{table_name:str}")
+async def create_table(schema_name:str, table_name:str, data:Dict[str, Any]) -> Dict[str, Any]:
+    lh = get_lh()
+    try:
+        columns_data = data.get("columns", [])
+        columns = [
+            TableSchema(name = col["name"], dtype = col["dtype"], nullable = col.get("nullable", True)) for col in columns_data
+        ]
+        lh.create_table(schema_name, table_name, columns)
+        return {
+            "message": "table created",
+            "schema_name": schema_name,
+            "table_name": table_name,
+            "columns": len(columns)
+        }
+    except Exception as exc:
+        return { "error": str(exc) }
 
 
 @get("/health")
@@ -44,5 +75,7 @@ async def health_check() -> dict:
 app = Litestar(debug = True, cors_config = CORSConfig(allow_origins = ["*"]), route_handlers = [
     health_check,
     create_schema,
-    get_schema_info
+    get_schema_info,
+    create_table,
+    list_tables,
 ])

@@ -12,6 +12,7 @@ __pycache__/
 *.py[oc]
 wheels/
 *.egg-info
+lhs/
 
 # Virtual environments
 .venv
