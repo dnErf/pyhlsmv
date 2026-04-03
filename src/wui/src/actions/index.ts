@@ -82,4 +82,34 @@ export const server = {
             return x
         }
     }),
+    getTableRecords: defineAction({
+        input: z.object({
+            schemaName: z.string(),
+            tableName: z.string(),
+        }),
+        handler: async (input, ctx) => {
+            const x = await (
+                await fetch(`http://localhost:8000/${input.schemaName}/${input.tableName}`, {
+                    method: "GET"
+                })
+            ).json()
+            console.log(x)
+            return x
+        }
+    }),
+    writeRecord: defineAction({
+        input: z.object({
+            schemaName: z.string(),
+            tableName: z.string(),
+        }),
+        handler: async (input, ctx) => {
+            const x = await (
+                await fetch(`http://localhost:8000/${input.schemaName}/${input.tableName}`, {
+                    method: "GET"
+                })
+            ).json()
+            console.log(x)
+            return x
+        }
+    }),
 }

@@ -39,6 +39,13 @@ btn_createTable?.addEventListener("click", async () => {
 	let getTablesResult = await actions.createTable({ schemaName: "test", tableName: "ztbl" })
 	console.log(getTablesResult)
 })
+
+const btn_getTableRecords = document.querySelector("#btn_getTableRecords")
+btn_getTableRecords?.addEventListener("click", async () => {
+	console.log("get table records")
+	let getTablesResult = await actions.getTableRecords({ schemaName: "test", tableName: "ztbl" })
+	console.log(getTablesResult)
+})
 </script>
 
 <Main>
@@ -61,6 +68,11 @@ btn_createTable?.addEventListener("click", async () => {
 		<div>
 			<button id="btn_createTable" class="">
 				create table
+			</button>
+		</div>
+		<div>
+			<button id="btn_getTableRecords" class="">
+				get table records
 			</button>
 		</div>
 	</div>
